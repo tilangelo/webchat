@@ -1,0 +1,46 @@
+package com.example.webchat.Entity;
+
+import jakarta.persistence.*;
+
+import java.util.UUID;
+
+@Entity
+public class ChatEntity {
+    private String ChatName;
+
+    @Column(unique = true, nullable = false)
+    private String chatId;
+
+    @PrePersist
+    public void generateChatId(){
+        this.chatId = UUID.randomUUID().toString();
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    public String getChatName() {
+        return ChatName;
+    }
+
+    public void setChatName(String chatName) {
+        ChatName = chatName;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
+    }
+}

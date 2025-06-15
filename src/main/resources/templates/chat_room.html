@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Chat ID: ' + ${chatId}">Chat Room</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+
+<h2>Chat Room: <span th:text="${chatId}"></span></h2>
+
+<div id="chat">
+    <div th:each="msg : ${messages}">
+        <div th:text="${msg.getSender() + ': ' + msg.getContent()}"></div>
+    </div>
+</div>
+
+<input type="text" id="sender" placeholder="Your name" />
+<input type="text" id="message" placeholder="Message" />
+<button onclick="sendMessage()">Send</button>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        let chatId = /*[[${'"' + chatId + '"'}]]*/ "fallback";
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function () {
+                chatId = chatId.replaceAll('"', '');
+                stompClient.subscribe("/topic/chat/" + chatId, function (message) {
+                    const msg = JSON.parse(message.body);
+                    showMessage(msg.sender + ": " + msg.content);
+                });
+            });
+        }
+
+        function sendMessage() {
+            const sender = document.getElementById('sender').value;
+            const content = document.getElementById('message').value;
+
+            stompClient.send("/app/chat.send", {}, JSON.stringify({
+                sender: sender,
+                content: content,
+                type: "CHAT",
+                chatId: chatId
+            }));
+
+            document.getElementById('message').value = '';
+        }
+
+        function showMessage(msg) {
+            const chat = document.getElementById('chat');
+            const div = document.createElement('div');
+            div.innerText = msg;
+            chat.appendChild(div);
+        }
+
+        // Делаем sendMessage глобальной для доступа из HTML onclick
+        window.sendMessage = sendMessage;
+
+        connect();
+    });
+</script>
+
+
+</body>
+</html>
