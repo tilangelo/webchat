@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Профиль</title>
+</head>
+<body>
+<h1>Привет, <span th:text="${username}">user</span>!</h1>
+
+<form th:action="@{'/user/' + ${username} + '/chats'}" method="get">
+    <button type="submit">Мои чаты</button>
+</form>
+
+<form th:action="@{/profile/chat_create}" method="get">
+    <button type="submit">Создать чат</button>
+</form>
+</body>
+</html>

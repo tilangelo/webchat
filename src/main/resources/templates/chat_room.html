@@ -16,9 +16,14 @@
     </div>
 </div>
 
-<input type="text" id="sender" placeholder="Your name" />
 <input type="text" id="message" placeholder="Message" />
-<button onclick="sendMessage()">Send</button>
+<button type="button" onclick="sendMessage()">Send</button>
+
+<form th:action="@{'/chat/' + ${chatId} + '/invite'}" method="post">
+    <input type="text" name="usernameToInvite" placeholder="Имя пользователя" />
+    <button type="submit">Пригласить</button>
+</form>
+
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
@@ -38,11 +43,9 @@
         }
 
         function sendMessage() {
-            const sender = document.getElementById('sender').value;
             const content = document.getElementById('message').value;
 
-            stompClient.send("/app/chat.send", {}, JSON.stringify({
-                sender: sender,
+            stompClient.send("/app/chat/"+ chatId +"/chat.send", {}, JSON.stringify({
                 content: content,
                 type: "CHAT",
                 chatId: chatId

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Чаты пользователя</title>
+</head>
+<body>
+<h2>Чаты пользователя <span th:text="${username}"></span></h2>
+<ul>
+    <li th:each="chat : ${chats}">
+        <a th:href="@{'/chat/' + ${chat.id}}" th:text="${chat.chatName}"></a>
+    </li>
+</ul>
+</body>
+</html>
