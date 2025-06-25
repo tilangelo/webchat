@@ -20,7 +20,7 @@
 <button type="button" onclick="sendMessage()">Send</button>
 
 <form th:action="@{'/chat/' + ${chatId} + '/invite'}" method="post">
-    <input type="text" name="usernameToInvite" placeholder="Имя пользователя" />
+    <input type="text" name="usernameToInvite" id="usernameToInvite" placeholder="Имя пользователя" />
     <button type="submit">Пригласить</button>
 </form>
 

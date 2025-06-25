@@ -22,22 +22,17 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
-
-    public SecurityConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/ws/**", "/chat/**", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/login**", "/ws/**", "/chat/**", "/register", "/css/**", "/js/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .failureUrl("/login?error=true")
                         .defaultSuccessUrl("/profile", true)
                         .permitAll()
                 )
@@ -54,25 +49,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Вместо userService — используем напрямую userRepository
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .map(user -> new User(
-                        user.getUsername(),
-                        user.getPassword(),
-                        List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                ))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http,
                                                        PasswordEncoder encoder,
-                                                       UserDetailsService uds) throws Exception {
+                                                       UserService userService) throws Exception {
         AuthenticationManagerBuilder builder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        builder.userDetailsService(uds).passwordEncoder(encoder);
+        builder.userDetailsService(userService).passwordEncoder(encoder);
         return builder.build();
     }
 }

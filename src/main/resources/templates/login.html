@@ -10,5 +10,10 @@
     <input type="password" name="password" placeholder="Password" required>
     <button type="submit">Login</button>
 </form>
+<script>
+    if (window.location.search.includes('error=true')) {
+        alert('неверный логин или пароль');
+    }
+</script>
 </body>
 </html>

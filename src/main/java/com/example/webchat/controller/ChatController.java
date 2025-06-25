@@ -43,8 +43,12 @@ public class ChatController {
                             ChatMessage message,
                             Principal principal) {
 
+        System.out.println("В контроллере отправки, имя принципала: "+ principal.getName());
+        System.out.println("В контроллере отправки, чатайди: "+ chatId);
+        System.out.println("В контроллере отправки, имя принципала: "+ principal);
+
         ChatEntity chat = chatRepository.findByChatId(chatId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ваш не найден в бд"));
         if(!chatRepository.existsByChatIdAndUsername(chatId, principal.getName())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "У вас нет прав на отправку сообщения");
         }
@@ -59,20 +63,34 @@ public class ChatController {
         chat.generateChatId();
         UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow();
         chat.getUsers().add(user);
+        user.getChats().add(chat);
         chatRepository.save(chat);
+        userRepository.save(user);
         model.addAttribute("chatId", chat.getChatId());
         return "chat_room";
     }
 
     @GetMapping("/chat/{chatId}")
     public String chatRoom(@PathVariable String chatId, Model model, Principal principal) {
+
+        if(principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        System.out.println("Принципал "+principal);
+
+        System.out.println("Принципал Имя "+principal.getName());
+
         ChatEntity chat = chatRepository.findByChatId(chatId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         UserEntity user = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+        System.out.println("Юзеры чата: " + chat.getUsers());
         if(!chat.getUsers().contains(user)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Вы не можете просматривать этот чат");
         }
+        model.addAttribute("messages", messagesRepository.findByChatId(chatId));
         model.addAttribute("chatId", chatId);
         return "chat_room";
     }
@@ -82,8 +100,10 @@ public class ChatController {
                          @RequestParam String usernameToInvite,
                          Principal principal) {
         ChatEntity chat = chatRepository.findByChatId(chatId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        UserEntity currentUser = userRepository.findByUsername(principal.getName()).orElseThrow();
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ваш чат не найден в бд"));
+        UserEntity currentUser = userRepository.findByUsername(principal.getName()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "вы являетесь не верным юзером чата")
+        );
         if(!chat.getUsers().contains(currentUser)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "У вас нет прав чтобы приглашать в этот чат");
@@ -92,6 +112,8 @@ public class ChatController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "нету пользователя с таким ником"));
         chat.getUsers().add(invitedUser);
+        invitedUser.getChats().add(chat);
+        userRepository.save(invitedUser);
         chatRepository.save(chat);
         return "redirect:/chat/" + chatId;
     }

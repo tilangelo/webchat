@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Primary
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
