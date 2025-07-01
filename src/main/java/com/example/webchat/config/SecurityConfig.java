@@ -25,7 +25,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/ws/**")) //Отключу CSRF только для вебсокета, в остальном защита будет работать.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/login**", "/ws/**", "/chat/**", "/register", "/css/**", "/js/**").permitAll()
                         .anyRequest().authenticated()

@@ -7,7 +7,7 @@
 <h2>Чаты пользователя <span th:text="${username}"></span></h2>
 <ul>
     <li th:each="chat : ${chats}">
-        <a th:href="@{'/chat/' + ${chat.id}}" th:text="${chat.chatName}"></a>
+        <a th:href="@{'/chat/' + ${chat.chatId}}" th:text="${chat.chatId}"></a>
     </li>
 </ul>
 </body>
