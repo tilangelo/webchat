@@ -102,6 +102,9 @@
 <input type="text" id="message" placeholder="Message" />
 <button type="button" onclick="sendMessage()">Send</button>
 
+<input type="text" id="messageToLLM" placeholder="Message" />
+<button type="button" onclick="sendMessageToLLM()">SendToLLM</button>
+
 <form th:action="@{'/chat/' + ${chatId} + '/invite'}" method="post">
     <input type="text" name="usernameToInvite" id="usernameToInvite" placeholder="Имя пользователя" />
     <button type="submit">Пригласить</button>
@@ -137,6 +140,18 @@
             document.getElementById('message').value = '';
         }
 
+        function sendMessageToLLM() {
+            const content = document.getElementById('messageToLLM').value;
+
+            stompClient.send("/app/chat/"+ chatId +"/chat.sendToLLM", {}, JSON.stringify({
+                content: content,
+                type: "CHAT",
+                chatId: chatId
+            }));
+
+            document.getElementById('messageToLLM').value = '';
+        }
+
         function showMessage(msg) {
             const chat = document.getElementById('chat');
             const div = document.createElement('div');
@@ -146,6 +161,7 @@
 
         // Делаем sendMessage глобальной для доступа из HTML onclick
         window.sendMessage = sendMessage;
+        window.sendMessageToLLM = sendMessageToLLM;
 
         connect();
     });

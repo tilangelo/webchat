@@ -15,3 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
+deepseek:
+  api:
+    key: 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
