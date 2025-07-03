@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Entity
 public class ChatEntity {
+    @Column(unique = true)
     private String ChatName;
 
     @Column(unique = true, nullable = false)

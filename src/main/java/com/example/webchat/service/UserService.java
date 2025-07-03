@@ -36,6 +36,10 @@ public class UserService implements UserDetailsService {
         this.messagesRepository = messagesRepository;
     }
 
+    public Optional<ChatEntity> findChatById(String chatId) {
+        return chatRepository.findByChatId(chatId);
+    }
+
     /**
      * Добавляет нового пользователя в БД(users). Ставит из параметров имя, пароль(в виде хеша bcrypt), mail,
      * @param username
@@ -56,9 +60,10 @@ public class UserService implements UserDetailsService {
      * @param principal принципал
      * @return Возвращает ChatEntity
      */
-    public ChatEntity createChat(Principal principal){
+    public ChatEntity createChat(Principal principal, String chatName) {
         ChatEntity chat = new ChatEntity();
         chat.generateChatId();
+        chat.setChatName(chatName);
         UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow();
         chat.getUsers().add(user);
         user.getChats().add(chat);

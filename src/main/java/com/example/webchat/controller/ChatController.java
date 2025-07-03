@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class ChatController {
@@ -40,18 +41,40 @@ public class ChatController {
         messageBrokerService.sendMessage(chatId, message, principal);
     }
 
-    @GetMapping("/profile/chat_create")
-    public String createChat(Principal principal, Model model) {
-        ChatEntity chat = userService.createChat(principal);
-        model.addAttribute("chatId", chat.getChatId());
+    @PostMapping("/profile/chat_create")
+    public String createChatPost(Principal principal, Model model, @RequestParam String chatName) {
+        // Серверная валидация: минимум 5 латинских букв
+        if (chatName == null || !chatName.matches("^[A-Za-z]{5,}$")) {
+            model.addAttribute("username", principal.getName());
+            model.addAttribute("chatCreateError", "Название чата должно содержать минимум 5 латинских букв без пробелов и других символов");
+            return "profile";
+        }
+        ChatEntity chat = userService.createChat(principal, chatName);
+        return "redirect:/profile/chat_create?redirect&chatId=" + chat.getChatId() + "&chatName=" + chat.getChatName();
+    }
+
+    @GetMapping(value = "/profile/chat_create", params = "redirect")
+    public String createChatRedirect(@RequestParam String chatId, @RequestParam String chatName, Model model) {
+        model.addAttribute("chatId", chatId);
+        model.addAttribute("chatName", chatName);
         return "chat_room";
     }
 
+    //Для рендера страницы чата по его chatId. Подгружает сообщения с помощью сервиса из БД. При наличии chatName у
+    //чата, добавляет аттрибут для рендера chatName, чтобы отображалось имя чата.
     @GetMapping("/chat/{chatId}")
     public String chatRoom(@PathVariable String chatId, Model model, Principal principal) {
         List<ChatMessageEntity> messages = userService.renderChat(principal, chatId);
+        Optional<ChatEntity> chatEntityOptional = userService.findChatById(chatId);
+
         model.addAttribute("messages", messages);
         model.addAttribute("chatId", chatId);
+
+        if(chatEntityOptional.isPresent()) {
+            ChatEntity chat = chatEntityOptional.get();
+            model.addAttribute("chatName", chat.getChatName());
+        }
+
         return "chat_room";
     }
 

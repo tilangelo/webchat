@@ -5,10 +5,93 @@
     <title th:text="'Chat ID: ' + ${chatId}">Chat Room</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <style>
+        body {
+            background: #181a1b;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            margin-top: 40px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #232526 0%, #414345 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        #chat {
+            background: #23272a;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+            padding: 20px;
+            margin: 30px 0 20px 0;
+            width: 100%;
+            max-width: 75vw;
+            min-width: 320px;
+            min-height: 120px;
+            max-height: 50vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+        #chat > div {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #23272a;
+            color: #e2e8f0;
+            word-break: break-word;
+            white-space: pre-line;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #23272a;
+            color: #e2e8f0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #232526 0%, #414345 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+        }
+        button:hover {
+            background: linear-gradient(90deg, #111113 0%, #232526 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        form {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Chat Room: <span th:text="${chatId}"></span></h2>
+<h2>
+    <span th:if="${chatName != null}" th:text="${chatName}"></span>
+    <span th:if="${chatName == null}">Chat Room</span>:
+    <span th:text="${chatId}"></span>
+</h2>
 
 <div id="chat">
     <div th:each="msg : ${messages}">
