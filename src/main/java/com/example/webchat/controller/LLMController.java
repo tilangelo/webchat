@@ -24,19 +24,21 @@ public class LLMController {
     @MessageMapping("/chat/{chatId}/chat.sendToLLM")
     public void sendMessageToLLM(@DestinationVariable String chatId,
                                  ChatMessage message,
-                                 Principal principal) {
+                                 Principal principal){
         //Сообщение от юзера, сохраняю и раскидываю как обычное сообщение.
         System.out.println("Сохраняю сообщение для LLM: " + message.getContent());
+        String stringToLlmResponse = message.getContent();
         message.setContent("Запрос в LLM: " + message.getContent());
         messageBrokerService.sendMessage(chatId, message, principal);
 
         //Запрос в LLM, сохраняю и раскидываю ответ как обычное сообщение.
         try {
-            String llmResponse = llmService.askLLM(message.getContent());
+            String llmResponse = llmService.askLLM(stringToLlmResponse);
             ChatMessage aiMessage = new ChatMessage();
-            aiMessage.setSender("DEEPSEEK");
+            aiMessage.setSender("AI");
             aiMessage.setChatId(chatId);
             aiMessage.setContent(llmResponse);
+            aiMessage.setType("CHAT");
             messageBrokerService.sendMessage(chatId, aiMessage, principal);
         } catch (IOException e) {
             throw new RuntimeException(e);

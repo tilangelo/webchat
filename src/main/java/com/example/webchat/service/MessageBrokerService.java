@@ -45,7 +45,9 @@ public class MessageBrokerService {
         if(!chatRepository.existsByChatIdAndUsername(chatId, principal.getName())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "У вас нет прав на отправку сообщения");
         }
-        message.setSender(principal.getName());
+        if(message.getSender() == null || !message.getSender().equals("AI")) {
+            message.setSender(principal.getName());
+        }
         saveMessage(message);
     }
 

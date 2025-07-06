@@ -12,6 +12,7 @@ public class ChatMessageEntity {
     private Long id;
 
     private String sender;
+    @Column(length = 10000)
     private String content;
     private String type; // "CHAT", "JOIN", "LEAVE"
     @Column(name = "chat_id")
